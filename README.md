@@ -25,7 +25,7 @@ The aim of this project was to develop an application that enables users to impr
 
 **Server:** Flask, Python (3.8+)
 
-**Deep Learning Model:** Python (3.8+), TensorFlow, NumPy
+**Deep Learning Model:** Python (3.8+), TensorFlow, NumPy, Scikit-Learn, Keras
 
 Operating System: macOS Big Sur+
 
