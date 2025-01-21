@@ -23,7 +23,9 @@ The aim of this project was to develop an application that enables users to impr
 
 **Client:** HTML, CSS, JavaScript (Chart.js & D3.js)
 
-**Server:** Flask, Python (3.8+), TensorFlow, NumPy
+**Server:** Flask, Python (3.8+)
+
+**Deep Learning Model:** Python (3.8+), TensorFlow, NumPy
 
 Operating System: macOS Big Sur+
 
