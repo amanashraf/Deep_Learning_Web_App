@@ -1,7 +1,7 @@
 
 # Deep Learning Visualisation
 
-The aim of this project was to develop an application that enables users to improve their understanding of Machine Learning concepts. It focused on the process and impact of model optimisation, through visualisation and interaction. 
+The aim of this project was to develop an application that enables users to improve their understanding of Deep Learning concepts. It focused on the process and impact of model optimisation, through visualisation and interaction. 
 
 
 ## Features
