@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title> My Machine Learning Model </title>
+    <!-- Load jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
+    <!-- Load js/scripts.js -->
+    <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
+    <!-- Load js/d3nn.js -->
+    <script src="{{ url_for('static', filename='js/d3nn.js') }}" defer></script>
+    <!-- Load d3.js -->
+    <script src="https://d3js.org/d3.v7.min.js" defer></script>
+    <!-- Load Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+  </head>
+  <body>
+
+    <div class="backdrop">
+        <div class="mlp">
+            <form id="form-container">
+                    <label for="hidden-layers">Number of Hidden Layers</label>
+                    <div class="flex-container">
+                        <button type="button" class= "in-de-buttons" id="decrease-layers">-</button>
+                        <input type="number" id="hidden-layers" min="1" max="6" value="2">
+                        <button type="button" class= "in-de-buttons" id="increase-layers">+</button>
+                        <br></br>
+                    </div>
+                <div id="neurons-inputs-container"></div>
+            </form>
+            <div id="network-container">
+                <svg id="network-svg"></svg>
+            </div>
+
+            <div class="bottom-page">
+                <div class="training-button-group">
+                    <button id="train-button" onclick="sendTrainRequest()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="#4c7aaf" class="bi-bi-play-circle-fill" viewBox="0 0 16 16">
+                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
+                        </svg>
+                    </button>
+                    <span id="train-hover-text"> Train Model </span>
+                </div>
+
+                <div class="info-button-group">
+                    <button id="info-button" onclick="openInfoMessage()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="#4c7aaf" class="bi bi-info-circle" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+                        </svg>
+                    </button>
+                    <span id="info-hover-text"> Wep App Info </span>
+                </div>
+            </div>
+        </div>
+        
+
+        <div class="dropdown1" id="dropdown1">
+            <label class="dropdown1" id="epochs-label">Epochs</label>
+            <select class="dropdown1" id="epochs">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+            </select>
+        </div>
+
+        <div class="dropdown2" id="dropdown2">
+            <label class="dropdown2" id="batch-label">Batch</label>
+            <select class="dropdown2" id="batch">
+                <option value="10">10</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+
+        <div class="dropdown3" id="dropdown3">
+            <label class="dropdown3" id="optimizer-label">Optimizer</label>
+            <select class="dropdown3" id="optimizer">
+                <option value="Adam">Adam</option>
+                <option value="SGD">SGD</option>
+                <option value="RMSprop">RMSprop</option>
+            </select>
+        </div>
+
+        <div class="dropdown4" id="dropdown4">
+            <label class="dropdown4" id="learning-label">Learning</label>
+            <select class="dropdown4" id="learning">
+                <option value="0.1">0.1</option>
+                <option value="0.01">0.01</option>
+                <option value="0.001">0.001</option>
+            </select>
+        </div>
+
+        <div class="canvas-container">
+            <canvas class="canvas" id="canvas"></canvas>
+            <div class="canvas-buttons">
+                <button class="submitButton" id="submitButton" onclick="evaluateModel()">Submit</button>
+                <button class="resetButton" id="resetButton" onclick="resetCanvas()">Clear</button>
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="popup1 hidden1 flex-container-center1">
+        <div class="loading-screen">
+            <h2 class="training-text"> Training Model... </h2>
+            <canvas id="accGraph" style="width:80%;max-width:600px;height:60%;max-height:400px"></canvas>
+        </div>
+    </div>
+
+    <div class="popup2 hidden2 flex-container-center2">
+        <div class="training-results-screen">
+            <button type="button" class="btn-close" aria-label="Close" onclick="closeTrainingResults()"></button>
+            <h2 class="training-results-text"> Training Complete! </h2>
+            <h3 class="training-results-text"> Your Model's Accuracy is: </h3>
+            <h3 class="training-results-text" id="training-accuracy"></h3>
+            <h3 class="evaluation-results-text"> Now test out the model's performance</h3>
+            <h3 class="evaluation-results-text"> via the canvas on the right</h3>
+        </div>
+    </div>
+
+    <div class="popup3 hidden3 flex-container-center3">
+        <div class="evaluation-results-screen">
+            <button type="button" class="btn-close" aria-label="Close" onclick="closeEvaluationResults()"></button>
+            <h3 class="evaluation-results-text"> Your trained model identified</h3>
+            <h3 class="evaluation-results-text"> the number you submitted as: </h3>
+            <h3 class="evaluation-results-text" id="indentified-value"></h3>
+        </div>
+    </div>
+
+    <div class="popup4 hidden4 flex-container-center4">
+        <div class="welcome-message">
+            <h2 class="welcome-message-text"> Welcome!</h2>
+            <h3 class="welcome-message-text"> We are about to dive into the world of Machine Learning! If you’re new to Machine Learning don’t worry, we’ll be starting off with a classic (but powerful) model. </h3>
+            <h3 class="welcome-message-text"> This application will focus on tuning and configuring components within a Machine Learning model. </h3>
+            <h3 class="welcome-message-text"> Why is this important? Well imagine a guitar, before we can start playing a piece of music we need to tune the guitar to make sure the music we play sounds as we expect it to. </h3>
+            <h3 class="welcome-message-text"> The same applies in Machine Learning, we have to tune and configure models to make sure they achieve top performance. </h3>
+            <h3 class="welcome-message-text"> Let’s have a look at the model we’ll be configuring. </h3>
+            <button type="button" class="btn-right" onclick="secondWelcomeMessage()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="steelblue" class="bi bi-arrow-right-circle-fill" viewBox="0 0 16 16">
+                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="popup5 hidden5 flex-container-center5">
+        <div class="get-started-message">
+            <h2 class="welcome-message-text"> This application introduces a Machine Learning model that aims to recognise hand written digits. </h2>
+            <h3 class="welcome-message-text"> What you will see is a visual representation of the Artificial Neural Network of the Machine Learning model, which is pivotal to recognising and classifying hand written digits. </h3>
+            <h3 class="welcome-message-text"> Essentially, this is where the 'learning' happens within the model. If you want to understand more about what an Artificial Neural Network is, <a href="https://www.youtube.com/watch?v=aircAruvnKk" target="_blank">click here</a>. </h3>
+            <h3 class="welcome-message-text"> We must configure the Artificial Neural Network appropriately in order for the model to learn how to classify hand written digits with the greatest accuracy. </h3>
+            <h3 class="welcome-message-text"> If you want to understand more about how an Artificial Neural Network learns, <a href="https://www.youtube.com/watch?v=IHZwWFHWa-w" target="_blank">click here</a>. </h3>
+            <h3 class="welcome-message-text"> Let us continue and discuss how to configure the Neural Network. </h3>
+            <button type="button" class="btn-right" onclick="thirdWelcomeMessage()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="steelblue" class="bi bi-arrow-right-circle-fill" viewBox="0 0 16 16">
+                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="popup6 hidden6 flex-container-center6"> 
+        <div class="get-started-message">
+            <h3 class="welcome-message-text"> To get started configuring the model on the left, adjust the number of hidden layers and neurons per hidden layer. </h3> 
+            <h3 class="welcome-message-text"> Then specify the batch size, number of epochs, optimizer & learning rate hyperparameters of your model.</h3>
+            <h3 class="welcome-message-text"> When you're happy with your configuration, click the train button in the bottom left corner.</h3>
+            <h3 class="welcome-message-text"> Once the model has been trained, you can evaluate it's perfomance by drawing any digit from 0 to 9 in the canvas on the right.</h3>
+            <h3 class="welcome-message-text"> Submit your drawing and see if your model is able to identify it correctly.</h3>
+            <h3 class="welcome-message-text"> Try it out! </h3>
+            <h3 class="welcome-message-text"> P.s. further details on the model and its hyperparameters can be found via the information icon. Happy Learning! </h3>
+            <button type="button" class="btn-close" aria-label="Close" onclick="closeWelcomeMessage()"></button>
+        </div>
+    </div>
+
+    <div class="popup7 hidden7 flex-container-center7">
+        <div class="info-message">
+            <h2 class="info-message-text"> A reminder on how to configure the Neural Network.</h2>
+            <h3 class="info-message-text"> Start by adjusting the number of hidden layers and neurons per hidden layer. </h3> 
+            <h3 class="info-message-text"> Then specify the batch size, number of epochs, optimizer & learning rate hyperparameters of your model.</h3>
+            <h3 class="info-message-text"> When you're happy with your configuration, click the train button in the bottom left corner.</h3>
+            <h3 class="info-message-text"> Once trained, you can evaluate your model perfomance by drawing any digit from 0 to 9 in the canvas on the right.</h3>
+            <h3 class="info-message-text"> Submit your drawing and see what your model identifies it as.</h3>
+            
+            <button type="button" class="btn-right" onclick="nextInfoMessage()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="steelblue" class="bi bi-arrow-right-circle-fill" viewBox="0 0 16 16">
+                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    <div class="popup8 hidden8 flex-container-center8">
+        <div class="info-message">
+            <button type="button" class="btn-close" aria-label="Close" onclick="closeInfoMessage()"></button>
+            <h2 class="info-message-text"> Components of the Artificial Neural Network </h2>
+            <h3 class="info-message-text"> Input Layer: Represented by the Dataset icon (<a>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="steelblue" class="bi bi-server" viewBox="0 0 14.5 16">
+                    <path d="M1.333 2.667C1.333 1.194 4.318 0 8 0s6.667 1.194 6.667 2.667V4c0 1.473-2.985 2.667-6.667 2.667S1.333 5.473 1.333 4z"/>
+                    <path d="M1.333 6.334v3C1.333 10.805 4.318 12 8 12s6.667-1.194 6.667-2.667V6.334a6.5 6.5 0 0 1-1.458.79C11.81 7.684 9.967 8 8 8s-3.809-.317-5.208-.876a6.5 6.5 0 0 1-1.458-.79z"/>
+                    <path d="M14.667 11.668a6.5 6.5 0 0 1-1.458.789c-1.4.56-3.242.876-5.21.876-1.966 0-3.809-.316-5.208-.876a6.5 6.5 0 0 1-1.458-.79v1.666C1.333 14.806 4.318 16 8 16s6.667-1.194 6.667-2.667z"/>
+                </svg>
+            </a>) on the left of the neural network, this is the layer that recieves raw image data from the dataset and prepares it for processing by the model. </h3>
+            <h3 class="info-message-text"> Output Layers: Illustrated by the 10 neurons on the right of the neural network, these neurons represent the 10 possible outcomes the model can predict (single digits only from 0 to 9). </h3>
+            <h3 class="info-message-text"> Number of Epochs: Specifies the number of complete passes through the entire training dataset used to train the model. For more information on epochs <a href="https://www.kdnuggets.com/tuning-hyperparameters-in-neural-networks" target="_blank">click here</a>. </h3>
+            <h3 class="info-message-text"> Batch Size: The number of data points used in a single cycle of model training. For more information on batch size <a href="https://www.kdnuggets.com/tuning-hyperparameters-in-neural-networks" target="_blank">click here</a>. </h3>
+            <h3 class="info-message-text"> Optimizer: The method used to adjust the model's parameters (weights and biases) to minimise the loss function. For more information on optimizers <a href="https://www.kdnuggets.com/2020/12/optimization-algorithms-neural-networks.html" target="_blank">click here</a>.</h3>
+            <h3 class="info-message-text"> Learning Rate: Controls how much the model's parameters are adjusted at the end of each training cycle. For more information on learning rate <a href="https://www.kdnuggets.com/tuning-hyperparameters-in-neural-networks" target="_blank">click here</a>. </h3>
+        </div>
+    </div>
+
+    <div class="popup9 hidden9 flex-container-center9">
+        <div class="evaluating-screen">
+            <div class="evaluating-container">
+                <div class="evaluating-text">Evaluating<span class="dots"></span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="questionnaire-container" class="questionnaire-container">
+        <button id="questionnaire-button" onclick="openQuestionnaire()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="steelblue" class="bi bi-file-earmark-text-fill" viewBox="0 0 16 16">
+                <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1M4.5 9a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1zM4 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1z"/>
+            </svg>
+        </button>
+        <span id="questionnaire-hover-text"> Questionnaire </span>
+    </div>
+
+  </body>
+</html>
+
