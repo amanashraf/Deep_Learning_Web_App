@@ -19,27 +19,15 @@ The aim of this project was to develop an application that enables users to impr
 
 
 
-## Prerequisites
+## Tech Stack
 
-Programming Language: Python (Python 3.8+)
+**Client:** HTML, CSS, JavaScript (Chart.js & D3.js)
 
-Frontend:
-
-HTML
-CSS
-JavaScript (Chart.js & D3.js)
-
-FrameWork:
-Flask
-
-Libraries:
-TensorFlow,
-NumPy,
-io,
-base64,
-os,
+**Server:** Flask, Python (3.8+), TensorFlow, NumPy
 
 Operating System: macOS Big Sur+
+
+
 ## Virtual Environment
 
 To isolate your project's dependencies and avoid conflicts with other projects, create a virtual environment:
